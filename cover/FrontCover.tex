@@ -1,0 +1,105 @@
+\documentclass[11pt,twoside,openany,svgnames,x11names]{book}
+\input{../BookParameters.tex}
+
+\usepackage{wallpaper}
+\usepackage{changepage}
+\usepackage[explicit,clearempty]{titlesec}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usetikzlibrary{shapes,positioning}
+
+\usepackage{geometry}
+\geometry{
+   paperwidth=\CoverWidth in, 
+   paperheight=\CoverHeight in,
+   left=0.5in,
+   right=0.5in, 
+   top=1.0in,
+   bottom=23mm,
+   headheight=\baselineskip,
+   headsep=1.5in,
+   footskip=0.5in,
+}
+
+%% Set the uniform width of the colour box
+%% displaying the page number in footer
+%% to the width of "99"
+\newlength\pagenumwidth
+\settowidth{\pagenumwidth}{99}
+
+%% Concoct some colours of our own
+\definecolor[named]{GreenTea}{HTML}{CAE8A2}
+\definecolor[named]{MilkTea}{HTML}{C5A16F}
+
+\definecolor{orangeX}{RGB}{255,127,0}%
+\colorlet{BannerColor}{blue!22!black}%
+
+%% ----------------------------------------------------------------------------
+%% ----------------------------------------------------------------------------
+\begin{document}
+\frontmatter
+
+%%%%%%%%%%%%%%
+%% Cover page
+%%%%%%%%%%%%%%
+
+%% No header nor footer on the cover
+\thispagestyle{empty}
+
+%% Cover illustration
+%\ThisLLCornerWallPaper{1}{coverArt}
+\CenterWallPaper{1.1}{../images/CoverArt.jpg}
+
+
+%% Bar across the top
+%\tikz[remember picture,overlay]%
+
+\begin{tikzpicture}[remember picture,overlay]
+  \node[fill=BannerColor,
+    minimum width=\paperwidth,
+    minimum height=6em,
+    anchor=north, 
+  ] at (current page.north){};
+  \node[
+    font=\LARGE\bfseries,
+    text=Cornsilk,
+    xshift=0mm, yshift=-14mm
+  ] at (current page.north) {\TheBookSeries};
+\end{tikzpicture}
+
+\vspace*{1\baselineskip}
+
+{\bfseries\itshape%
+ \color{LightGoldenrod!50!Gold}
+ \fontsize{24.88pt}{36pt}
+ \selectfont{\TheMainTitle}\par}
+
+  \vspace*{2\baselineskip}
+
+{\bfseries\itshape\
+  \color{LightGoldenrod!50!Gold}
+  \fontsize{14.4pt}{18pt}\selectfont
+  {\TheSubTitle\par}
+
+\vspace*{1.5\baselineskip}
+
+{\LARGE\color{LightGoldenrod}
+  {\TheAuthor}\par
+}
+
+%% Bar across the bottom
+\begin{tikzpicture}[remember picture,overlay]
+  \node[fill={BannerColor},
+    minimum width=\paperwidth,
+    minimum height=4em,
+    anchor={south}]
+    at (current page.south) {};
+  \node[
+    anchor={south},
+    font=\LARGE\bfseries,
+    text=Cornsilk,
+    xshift=0mm, yshift=8.5mm
+  ] at (current page.south) {\ThePublisherName};
+\end{tikzpicture}
+
+\end{document}

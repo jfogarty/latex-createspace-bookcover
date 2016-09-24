@@ -1,0 +1,59 @@
+\documentclass{scrartcl}
+\input{../BookParameters.tex}
+
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{pagecolor}
+
+%% The spine is prepared sideways and rotated upon assembly.
+\geometry{
+  paperwidth=\CoverHeight in,%
+  paperheight=\SpineWidth in,%
+  left=\VerBleed  in + 3mm,% Provide a little extra room at top and bottom
+  right=\VerBleed in + 3mm,%
+  top=\FoldVariance in,%
+  bottom=\FoldVariance in,%
+  footskip=0.0 in%
+}
+
+\pagestyle{empty}
+
+%% ---------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------
+%%  The layout of the spine MUST be adjusted as the number of pages in
+%%  the finished book changes. The placement of text is very important.
+%% ---------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------
+\begin{document}
+\pagecolor{yellow!10}
+\setlength\parindent{0ex}
+  \begin{minipage}{0.2\linewidth}   
+   	\begin{center}
+      \vspace*{0.5mm}   	
+ 	  {\Large{\textbf{\textsf\TheAuthor}}}
+   	\end{center}
+  \end{minipage}
+  \begin{minipage}{0.58\linewidth}
+	\begin{center}
+      \ifthenelse{\isnamedefined{HasNarrowSpine}}{%
+        {\Huge{\textbf{\textsf\TheMainTitle}}} \par
+      }{%
+        \vspace*{0.5mm}
+        {\Huge{\textbf{\textsf\TheMainTitle}}} \par
+	    \vspace*{0.5mm}
+	    {\Large{\textsf\TheSubTitle}}
+	  }
+	\end{center}     
+  \end{minipage}
+  \begin{minipage}{0.13\linewidth}
+    \vspace*{-2mm}
+	\begin{center}  
+ 	  {\Large{\ThePublisherName}}
+	\end{center}   
+  \end{minipage}
+   \begin{minipage}{0.1\linewidth}
+     \vspace*{0.1mm}
+     \includegraphics[width=10mm,angle=90,origin=c]{../images/PressLogo.png}%
+  \end{minipage}
+\end{document}
+

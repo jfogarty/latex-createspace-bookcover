@@ -1,0 +1,79 @@
+\documentclass{scrartcl}
+\input{../BookParameters.tex}
+
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{pagecolor}
+\usepackage{changepage}
+
+% ----- Uncomment to add ISBN barcode to back cover 
+\usepackage[ISBN=\PrintISBN,SC4]{ean13isbn}
+
+\geometry{
+  paperwidth=\CoverWidth in,%
+  paperheight=\CoverHeight in,%
+  left=  0.5 in,%
+  right= 1.0 in,%
+  top=   0.8 in,%
+  bottom=0.3 in,%
+  footskip=0.0in%  
+}
+
+\pagestyle{empty}
+
+%% ---------------------------------------------------------------------------
+%% ---------------------------------------------------------------------------
+\begin{document}
+\pagecolor{yellow!30}
+
+\setlength\parindent{0ex}
+\begin{adjustwidth}{0.5in}{0in}
+	\begin{center}
+	{\Huge{\textbf{\textsf\TheMainTitle}}}
+	
+	\vspace*{0.4cm}
+	
+	{\Large{\textsf\TheSubTitle}}
+	\end{center}
+	
+	\vspace*{0.5cm}
+	
+	\BackDescription
+
+	\vspace*{0.1cm}
+	\begin{center}
+	---------------------------------------------------------------------------------
+	\end{center}
+	\vspace*{0.1cm}
+	
+	\includegraphics[width=0.4\textwidth]{../images/AuthorIcon.jpg}%
+	%\vspace*{-67mm}
+	\hspace*{0.1\textwidth}%
+	\includegraphics[width=0.39\textwidth]{../images/BackCoverArt.jpg}
+		
+	\AuthorBio
+\end{adjustwidth}
+
+	
+\ifthenelse{\isnamedefined{ShowCoverStatistics}}{
+   \vspace*{3mm}
+   \texttt{Cover Width:\CoverWidth in x \CoverHeight in., Spine:\SpineWidth in.} \par
+   \texttt{Jacket Width:\JacketWidth in., Total Pages:\TotalPageCount.} \par
+}{
+  \begin{adjustwidth}{10mm}{9cm}
+    \begin{center}
+      \vspace*{9mm}
+      \textbf{\textit{\ThePublisherLineA}} \par
+      \vspace*{1mm}
+      \includegraphics[width=15mm]{../images/PressLogo.png}\par%
+      \vspace*{-1mm}\hspace*{-1mm}\textbf{\textit{\ThePublisherLineB}}\par
+    \end{center}
+  \end{adjustwidth}
+ 
+  \ifthenelse{\isnamedefined{EANisbn}}{
+    \vspace*{-26mm}\hspace*{75mm}\EANisbn
+  }{}
+}
+
+\end{document}
+
