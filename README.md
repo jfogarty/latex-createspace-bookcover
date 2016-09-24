@@ -8,7 +8,7 @@ are easily changed.
 
 ## Structure
 
-`Parameters.tex` is a LaTeX file containing defines about your book. 
+`BookParameters.tex` is a LaTeX file containing defines about your book. 
 You edit this while constructing your book. In my projects, all LaTeX
 root files for the same publication include this file.
 
