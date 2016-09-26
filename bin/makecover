@@ -143,7 +143,8 @@ function logrun()
     local parms=$3
     local fromstream=$4
     local ignoreError=0
-    local logfile="./logs/${logindex}_$cmd.log"
+    local logbase=$(basename $cmd)
+    local logfile="./logs/${logindex}_$logbase.log"
     if [[ $fromstream -lt 0 ]]; then
         let fromstream=-$fromstream
         let ignoreError=1
@@ -165,10 +166,15 @@ function logrun()
 function makeCover()
 {
     local pdfparms="-synctex=1 -interaction=nonstopmode "
-    logrun "Generating Back Cover" "pdflatex" "$pdfparms BackCover.tex" 1
-    logrun "Generating Front Cover" "pdflatex" "$pdfparms FrontCover.tex" 1
-    logrun "Generating Spine for Cover" "pdflatex" "$pdfparms SpineCover.tex" 1
-    logrun "Building Final Cover" "pdflatex" "$pdfparms Cover.tex" 1
+    local tex="pdflatex"
+    logrun "Pass 1 - Generating Front Cover"      $tex "$pdfparms FrontCover.tex" 1
+    logrun "Pass 1 - Generating Back Cover"       $tex "$pdfparms BackCover.tex" 1
+    logrun "Pass 1 - Generating Spine for Cover"  $tex "$pdfparms SpineCover.tex" 1
+    logrun "Pass 2 - Generating Front Cover"      $tex "$pdfparms FrontCover.tex" 1
+    logrun "Pass 2 - Generating Back Cover"       $tex "$pdfparms BackCover.tex" 1
+    logrun "Pass 2 - Generating Spine for Cover"  $tex "$pdfparms SpineCover.tex" 1
+    logrun "Building Final Cover"                 $tex "$pdfparms Cover.tex" 1
+    logrun "Removing intermediate files"          "../bin/texclean" "-a" 1
     run "cp Cover.pdf .."
  }
 

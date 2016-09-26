@@ -6,6 +6,10 @@ use by CreateSpace and Ingram Spark print-on-demand paperback publishers.
 The default setup is for a 6" x 9" paperback, but the parameters are
 are easily changed.
 
+[cover]: images/CoverExample.jpg "The Example Createspace Paperback Cover"
+
+![This would be a Paperback Cover Image, but I can't find the file, Sorry.][cover]
+
 ## Structure
 
 `BookParameters.tex` is a LaTeX file containing defines about your book. 
@@ -20,10 +24,10 @@ files that are CC licensed from Wikipedia as an example.
 
 There are four files you can expect to edit:
 
+- **BookParameters.tex**
 - **cover/BackCover.tex**
 - **cover/FrontCover.tex**
 - **cover/SpineCover.tex**
-- **BookParameters.tex**
 
 You will need to adjust image sizes and spacing for your own text and 
 image shapes by editing the .tex file. Reasonable familiarity with LaTeX
@@ -31,18 +35,26 @@ is required.
 
 ### Building ###
 
-```bash
-cd cover
-pdflatex BackCover.tex 1> ./logs/1_pdflatex.log
-pdflatex FrontCover.tex 1> ./logs/2_pdflatex.log
-pdflatex SpineCover.tex 1> ./logs/3_pdflatex.log
-pdflatex Cover.tex 1> ./logs/4_pdflatex.log
-cp Cover.pdf ..
-```
-or you can run the provided script:
+You can run the provided script:
 
 ```bash
     ./bin/makecover
+```
+
+which executes exactly these commands:
+
+```bash
+mkdir -p cover/logs
+cd cover
+pdflatex -synctex=1 -interaction=nonstopmode  FrontCover.tex 1> ./logs/1_pdflatex.log
+pdflatex -synctex=1 -interaction=nonstopmode  BackCover.tex 1> ./logs/2_pdflatex.log
+pdflatex -synctex=1 -interaction=nonstopmode  SpineCover.tex 1> ./logs/3_pdflatex.log
+pdflatex -synctex=1 -interaction=nonstopmode  FrontCover.tex 1> ./logs/4_pdflatex.log
+pdflatex -synctex=1 -interaction=nonstopmode  BackCover.tex 1> ./logs/5_pdflatex.log
+pdflatex -synctex=1 -interaction=nonstopmode  SpineCover.tex 1> ./logs/6_pdflatex.log
+pdflatex -synctex=1 -interaction=nonstopmode  Cover.tex 1> ./logs/7_pdflatex.log
+../bin/texclean -a 1> ./logs/8_texclean.log
+cp Cover.pdf ..
 ```
 
 ## License
@@ -54,7 +66,27 @@ own project then please remove my name and hack away.
 ## Installing 
 
 Just copy the contents to your directories and use as is. You will need a
-complete LaTeX environment, which includes `pdflatex`. I recommend TexLive
-2016. I also use `TeXstudio` for interactive editing of the LaTeX files.
+complete LaTeX environment, which includes `pdflatex`. I recommend TexLive 2016.
+
+I also use `TeXstudio` for interactive editing of the LaTeX files.
+
+
+## `texclean` Utility
+
+Running `pdflatex` generates a lot of trash intermediate files. You can
+delete these with this `./bin/texclean` utility.
+
+```bash
+Usage: texclean [texfilename]
+Clean up trash files for a LaTeX .tex file.
+
+-a             clean for all .tex files in the directory.
+-t             trial run -- commands are shown but not executed.
+-q             quiet output during command execution.
+-v             verbose output during command execution.
+
+All the various intermediate files created during LaTex processing
+of a file are deleted.
+```
 
 
