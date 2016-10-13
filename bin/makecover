@@ -1,5 +1,10 @@
 #!/bin/bash
-# Build the .tex cover.
+# Build a PDF paperback book cover from LaTeX sources.
+# ----------------------------------------------------------------------------
+# LaTeX eBook utility tools
+# -----------------------------------------------------------------------------
+# John Fogarty - https://github.com/jfogarty - johnhenryfogarty@gmail.com
+# -----------------------------------------------------------------------------
 
 declare fullScriptName=$_
 declare scriptName=$(basename $0)
@@ -65,7 +70,7 @@ function checkDir()
 # Run a command and exit if any error code is returned.
 function runIgnore()
 {
-    if [[ $trialRun != 0 ]]; then
+    if [[ $trialRun -ne 0 ]]; then
         qecho "--Run:[$@]"
     else
        vecho "- $@"
