@@ -7,12 +7,16 @@
 
 %\def\uselayouts{}% Enable to display page layout info at end of document.
 
-\pgfmathsetmacro\TotalPageCount{240}% Must be manually entered
+% At 215 pages, the spine is wide enough to hold a publishers logo
+% and a nice sized title. At 315 pages the spine can hold a subtitle.
+% The logo is not available below 215 pages, and below 150 pages the
+% title size is very reduced. A blank spine is used when the book has
+% fewer than 123 pages.
+\pgfmathsetmacro\TotalPageCount{315}% Must be manually entered
 \pgfmathsetmacro\PaperWidthPt{6in}%
 \pgfmathsetmacro\PaperHeightPt{9in}%
 
 %\def\ShowCoverStatistics{}% Enable to show some numbers on back cover.
-\def\HasNarrowSpine{}% Enable if the spine cannot hold the subtitle.
 
 \def\TheMainTitle{The Ultimate Book}
 \def\TheSubTitle{Hey! Why Not Read This One?}

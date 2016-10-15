@@ -1,5 +1,5 @@
 #!/bin/bash
-# Build a PDF paperback book cover from LaTeX sources.
+# Set a \Boolean parameter in a LaTeX .tex file.
 # ----------------------------------------------------------------------------
 # LaTeX eBook utility tools
 # -----------------------------------------------------------------------------
@@ -9,18 +9,15 @@
 declare fullScriptName=$_
 declare scriptName=$(basename $0)
 
-declare toDir="cover"
-declare parametersName
-
+declare bookName
 declare trialRun=0
 declare verbose=0
 declare quiet=0
-declare logindex=1
+declare finalForm=0
+
 declare rv
 
 #------------------------------------------------------------------------
-# Terminate the script with a failure message.
-
 # echo text if not quiet
 function qecho()
 {
@@ -37,10 +34,11 @@ function vecho()
     fi
 }
 
+# Terminate the script with a failure message.
 function fail()
 {
     local msg=$1
-    qecho "[$scriptName] *** Failed: $msg"
+    echo "[$scriptName] *** Failed: $msg"
     exit 666
 }
 
@@ -60,7 +58,7 @@ function checkDir()
     if [[ -e "$dirName" ]]; then
         local toFile="$dirName/$fileName"
         if ! [[ -e "$toFile" ]]; then
-            qecho "*** Suspicious target directory. Clear it yourself first."
+            echo "*** Suspicious target directory. Clear it yourself first."
             fail "$toFile should exist."
         fi
     fi
@@ -68,27 +66,22 @@ function checkDir()
 
 #------------------------------------------------------------------------
 # Run a command and exit if any error code is returned.
-function runIgnore()
-{
-    if [[ $trialRun -ne 0 ]]; then
-        qecho "--Run:[$@]"
-    else
-       vecho "- $@"
-       eval "$@"
-    fi
-}
-
-#------------------------------------------------------------------------
-# Run a command and exit if any error code is returned.
 function run()
 {
-    runIgnore "$@"
-    local status=$?
-    if [[ $status -ne 0 ]]; then
-        qecho "[$scriptName] *** Error with [$1]" >&2
-        exit $status
+    if [[ $trialRun != 0 ]]; then
+        echo "--Run:[$@]"
+    else
+       if [[ $verbose == 1 ]]; then
+           echo "- $@"
+       fi
+       eval "$@"
+       local status=$?
+       if [[ $status -ne 0 ]]; then
+           echo "[$scriptName] *** Error with [$1]" >&2
+           exit $status
+       fi
+       return $status
     fi
-    return $status
 }
 
 #------------------------------------------------------------------------
@@ -101,9 +94,9 @@ function removeExtension()
     if [[ "${fileName%.*}.$extName" == "$fileName" ]]; then
         fileName=${fileName%.*}
     fi
-    if [[ "${fileName:(-1)}" == "." ]]; then
+    if [[ "${fileName%.*}." == "$fileName" ]]; then
         fileName=${fileName%.*}
-    fi    
+    fi
     rv="$fileName"
 }
 
@@ -128,16 +121,18 @@ function copyIfExists()
     local theFile=$1
     local theDest=$2
     if [[ -e "$theFile" ]]; then
-        run cp "$theFile" "$theDest"
+        run "cp \"$theFile\" \"$theDest\""
     fi
 }
 
 #------------------------------------------------------------------------
-# Set up the working directory
-function prepareDir()
+# Delete a file if it exists
+function delIfExists()
 {
-    run mkdir -p "$toDir/logs"
-    run cd "cover"
+    local theFile=$1
+    if [[ -e "$theFile" ]]; then
+        run "rm \"$theFile\""
+    fi
 }
 
 #------------------------------------------------------------------------
@@ -154,91 +149,89 @@ function evalrv()
     fi
 }
 
-function getBookParam()
+function getTexParam()
 {
+    #perl -0ne '"print "[$1]\n" if /\\Boolean{RAWHTML}\s*{(.*)}/' eBook.tex
     local pname=$1
-    local cmd='perl -0ne '"'"'print "$1\n" if /\\'"$pname"'{(.*)}/'
-    local cmd+="' < ../$parametersName.tex"
+    local cmd='perl -0ne '"'"'print "$1\n" if /\\Boolean{'"$pname"'}\s*{(.*)}/'
+    cmd+="' < $bookName.tex"
     evalrv "$cmd"
 }
 
-function showStats()
+# Set a /Boolean parameter from the book.tex
+function setTexParam()
 {
-    getBookParam "TotalPageCount"; local pages="$rv"
-    getBookParam "PaperWidthPt";   local width="$rv"
-    getBookParam "PaperHeightPt";  local height="$rv"
+    #perl -0ne '$b="RAWHTML";$v="XYZZY";s/(.*\\Boolean{$b}\s*{)(.*)(}.*)/\1$v\3/ ; print $_' eBook.tex > eBook.2
+    local pname=$1
+    local newValue=$2
 
-    printf '%s Book Format %s x %s (%s pages)\n' '-' $width $height $pages       
+    #perl -0ne '$b="RAWHTML";$v="XYZZY";
+    local cmd='perl -0ne '"'"'$b="'"$pname"'";$v="'"$newValue"'";'
+
+    #s/(.*\\Boolean{$b}\s*{)(.*)(}.*)/\1$v\3/
+    cmd+='s/(.*\\Boolean{$b}\s*{)(.*)(}.*)/\1$v\3/'
+
+    # ; print $_' eBook.tex > eBook.2
+    cmd+="; print $_' $bookName.tex > $bookName.tmp"
+    evalrv "$cmd"
+    if [[ $trialRun == 0 ]]; then
+        requireFile "Converted file" "$bookName.tmp"
+    fi    
+    run "mv \"$bookName.tex\" \"$bookName.old\""
+    run "mv \"$bookName.tmp\" \"$bookName.tex\""
 }
 
 #------------------------------------------------------------------------
-# Run a command log its output to a subdirectoried log file.
-function logrun()
+function doSetParam()
 {
-    local msg=$1
-    local cmd=$2
-    local parms=$3
-    local fromstream=$4
-    local ignoreError=0
-    local logbase=$(basename $cmd)
-    local logfile="./logs/${logindex}_$logbase.log"
-    if [[ $fromstream -lt 0 ]]; then
-        let fromstream=-$fromstream
-        let ignoreError=1
+    local paramName="$1"
+    local newValue="$2"
+    getTexParam "$paramName"
+    local currentValue="$rv"
+    vecho "- Current value is [$currentValue]"
+    if [[ $trialRun == 0 ]]; then    
+        if [[ -z "$currentValue" ]]; then
+            fail "$paramName is not in $bookName.tex"
+        fi
+        if [[ "$currentValue" == "$newValue" ]]; then
+            vecho "- $paramName is already set to \"$newValue\" in $bookName.tex"
+            exit 0
+        fi
     fi
-    if [[ $fromstream -eq 0 ]]; then
-      local fullcmd="$cmd $parms | tee $logfile"
-    else 
-      local fullcmd="$cmd $parms $fromstream> $logfile"
-    fi
-    qecho "- $msg"
-    if [[ ignoreError -eq 0 ]]; then
-        run "$fullcmd" 
-    else
-        runIgnore "$fullcmd" 
-    fi
-    let logindex+=1
+    vecho "--Set $paramName to \"$newValue\" in $bookName.tex as $bookName.tmp"
+    setTexParam "$paramName" "$newValue"
 }
-
-function makeCover()
-{
-    local pdfparms="-synctex=1 -interaction=nonstopmode "
-    local tex="pdflatex"
-    logrun "Pass 1 - Generating Front Cover"      $tex "$pdfparms FrontCover.tex" 1
-    logrun "Pass 1 - Generating Back Cover"       $tex "$pdfparms BackCover.tex" 1
-    logrun "Pass 1 - Generating Spine for Cover"  $tex "$pdfparms SpineCover.tex" 1
-    logrun "Pass 2 - Generating Front Cover"      $tex "$pdfparms FrontCover.tex" 1
-    logrun "Pass 2 - Generating Back Cover"       $tex "$pdfparms BackCover.tex" 1
-    logrun "Pass 2 - Generating Spine for Cover"  $tex "$pdfparms SpineCover.tex" 1
-    logrun "Assembling Final Cover"               $tex "$pdfparms Cover.tex" 1
-    logrun "Removing intermediate files"          "../bin/texclean" "-a" 1
-    run "cp Cover.pdf .."
- }
 
 #------------------------------------------------------------------------
 function scriptUsage()
 {
-    echo "Usage: $scriptName"
-    echo "Build a LaTeX cover"
+    echo "Usage: $scriptName [texfilename] [paramName] [value]"
+    echo "Change a boolean value in a .tex file"
     echo ""
-    echo "-t             trial run -- commands are shown but not executed."
-    echo "-v             verbose output during command execution."
-    echo "-q             quiet output during command execution."
+    echo "-t    trial run -- commands are shown but not executed."
+    echo "-q    quiet output during command execution."
+    echo "-v    verbose output during command execution."
     echo ""
+    echo "This makes a change to a \Boolean {name} {value} line in a LaTeX"
+    echo "file. If the boolean doesn't exist then an error is returned."
+    echo ""	
     exit 1
 }
 
 #------------------------------------------------------------------------
 function main()
 {
-    logindex=1 #Start the log numbering over each run.
-    parametersName="BookParameters"
-    requireFile "BookParameters"  "$parametersName.tex"
-    requireFile "Cover" "cover/Cover.tex"
-    prepareDir
-    showStats
-    makeCover
-    qecho "- Done."
+    if [[ -z "$1" ]]; then
+        scriptUsage 
+    fi
+    removeExtension "$1" "tex"; 
+    bookName="$rv"
+    local paramName="$2"
+    local newValue="$3"
+    requireFile "LaTex" "$bookName.tex"
+    vecho "- Set $paramName to $newValue in $bookName.tex"
+    doSetParam "$paramName" "$newValue"
+    vecho "- Done."
     exit 0
 }
 
@@ -259,6 +252,7 @@ while getopts "h?vqt" opt; do
 done
 shift $((OPTIND-1))
 [ "$1" = "--" ] && shift
-main "$1" "$2"
+main "$@"
+
 # - End of bash script.
 

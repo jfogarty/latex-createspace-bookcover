@@ -57,6 +57,28 @@ pdflatex -synctex=1 -interaction=nonstopmode  Cover.tex 1> ./logs/7_pdflatex.log
 cp Cover.pdf ..
 ```
 
+## Page Count and Spine
+
+The *TotalPageCount* parameter in `BookParameters.tex` controls the
+thickness of your book's spine. The page count times the *SinglePageThicknessPt*
+determines the thickness. This is currently set to the thickness of standard
+white paper used by CreateSpace, but you may need to change it to match the bond
+used by your print on demand publisher.
+
+Once you have built a PDF for your book, you can set the page by:
+
+- [1] editing `BookParameters.tex` directly
+- [2] or running `./bin/setBookParameter TotalPageCount nnn`
+- [3] or running `setBookTotalPageCount [logfile]` against
+the final pdflatex log file created when you built your pdf.
+This extracts the page count from the log and modifies `BookParameters.tex`.
+You will need the `./bin` directory in your path.
+
+`SpineCover.tex` automatically adjusts the format of the spine based on
+the page count, but you will need to edit it if your book title, subtitle,
+author name, or publisher names are significantly longer than those
+provided in the example.
+ 
 ## License
 
 This code is MIT Licensed and under the Free License 1.0.0. You are free to

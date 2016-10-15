@@ -27,33 +27,71 @@
 \begin{document}
 \pagecolor{yellow!10}
 \setlength\parindent{0ex}
-  \begin{minipage}{0.2\linewidth}   
+
+% At 215 pages, the spine is wide enough to hold a publishers logo
+% and a nice sized title. At 315 pages the spine can hold a subtitle.
+% The logo is not available below 215 pages, and below 150 pages the
+% title size is very reduced. A blank spine is used when the book has
+% fewer than 123 pages.
+\ifthenelse{\TotalPageCount < 215}{%
+  \ifthenelse{\TotalPageCount < 150}{%
+    \begin{minipage}{0.2\linewidth}
+   	  \begin{center}
+ 	    \vspace*{-1.0mm}\textbf{\textsf\TheAuthor}
+      \end{center}
+    \end{minipage}
+    \begin{minipage}{0.58\linewidth}
+	  \begin{center}
+ 	    \vspace*{-1.0mm}{\textbf{\textsf\TheMainTitle}}\par
+	  \end{center}     
+    \end{minipage}  
+    \begin{minipage}{0.23\linewidth}
+	  \begin{center}  
+	    \vspace*{-1.0mm}\ThePublisherName
+	  \end{center}   
+    \end{minipage}  
+  }{%
+    \begin{minipage}[c][\textheight]{0.2\linewidth}
+   	  \begin{center}
+ 	    {\Large{\textbf{\textsf\TheAuthor}}}
+   	  \end{center}
+    \end{minipage}
+    \begin{minipage}[c][\textheight]{0.58\linewidth}
+	  \begin{center}
+        \Huge{\textbf{\textsf\TheMainTitle}}
+	  \end{center}     
+    \end{minipage}  
+    \begin{minipage}[c][\textheight]{0.23\linewidth}
+	  \begin{center}  
+ 	    \Large{\ThePublisherName}
+	  \end{center}   
+    \end{minipage}  
+  }%
+}{%
+  \begin{minipage}[c][\textheight]{0.2\linewidth}
    	\begin{center}
-      \vspace*{0.5mm}   	
  	  {\Large{\textbf{\textsf\TheAuthor}}}
    	\end{center}
   \end{minipage}
-  \begin{minipage}{0.58\linewidth}
+  \begin{minipage}[c][\textheight]{0.58\linewidth}
 	\begin{center}
-      \ifthenelse{\isnamedefined{HasNarrowSpine}}{%
+      \ifthenelse{\TotalPageCount < 315}{%
         {\Huge{\textbf{\textsf\TheMainTitle}}} \par
       }{%
-        \vspace*{0.5mm}
         {\Huge{\textbf{\textsf\TheMainTitle}}} \par
-	    \vspace*{0.5mm}
+	    \vspace*{1.5mm}
 	    {\Large{\textsf\TheSubTitle}}
 	  }
 	\end{center}     
   \end{minipage}
-  \begin{minipage}{0.13\linewidth}
-    \vspace*{-2mm}
+  \begin{minipage}[c][\textheight]{0.13\linewidth}
 	\begin{center}  
  	  {\Large{\ThePublisherName}}
 	\end{center}   
   \end{minipage}
-   \begin{minipage}{0.1\linewidth}
-     \vspace*{0.1mm}
+   \begin{minipage}[c][\textheight]{0.1\linewidth}
      \includegraphics[width=10mm,angle=90,origin=c]{../images/PressLogo.png}%
   \end{minipage}
+}%  
 \end{document}
 
