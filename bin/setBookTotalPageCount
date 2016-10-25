@@ -9,6 +9,11 @@
 declare fullScriptName=$_
 declare scriptName=$(basename $0)
 
+# Scripts calls other scripts in the same directory by simple name.
+declare absScriptFile=$(readlink -f "$0")
+declare absScriptPath=$(dirname "$absScriptFile")
+PATH=$absScriptPath:$PATH
+
 declare parametersName
 declare totalPageCount
 

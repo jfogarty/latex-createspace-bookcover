@@ -18,7 +18,9 @@ declare argv
 declare rv
 
 #------------------------------------------------------------------------
-# echo text if not quiet (normal echo)
+# Terminate the script with a failure message.
+
+# echo text if not quiet
 function qecho()
 {
     if [[ $quiet -eq 0 ]]; then
@@ -34,8 +36,6 @@ function vecho()
     fi
 }
 
-#------------------------------------------------------------------------
-# Terminate the script with a failure message.
 function fail()
 {
     local msg=$1
@@ -43,7 +43,6 @@ function fail()
     exit 666
 }
 
-# Fail if a file of a named type does not exist.
 function requireFile()
 {
 	local fileType=$1
@@ -53,7 +52,6 @@ function requireFile()
     fi
 }
 
-# Fail if a non-empty directory does not contain an expected file.
 function checkDir()
 {
 	local dirName=$1
@@ -68,7 +66,7 @@ function checkDir()
 }
 
 #------------------------------------------------------------------------
-# Checks to see if one directory is the same as another.
+# Checks to see if a directory is the same as another.
 # return 0 (success) if the directories are the same
 function dirMatches
 {
@@ -81,7 +79,7 @@ function dirMatches
 }
 
 #------------------------------------------------------------------------
-# Run a command and ignore the exit code (with command logging).
+# Run a command and exit if any error code is returned.
 function runIgnore()
 {
     if [[ $trialRun -ne 0 ]]; then

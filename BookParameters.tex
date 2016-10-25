@@ -12,6 +12,11 @@
 % The logo is not available below 215 pages, and below 150 pages the
 % title size is very reduced. A blank spine is used when the book has
 % fewer than 123 pages.
+%
+% Note that some printers require specific page count multiples:
+% -- Createspace: page count MUST be divisible by 2.
+% -- Ingram: page count MUST be divisible by 2.
+% -- Blurb : page count MUST be divisible by 6.
 \pgfmathsetmacro\TotalPageCount{315}% Must be manually entered
 \pgfmathsetmacro\PaperWidthPt{6in}%
 \pgfmathsetmacro\PaperHeightPt{9in}%
@@ -25,7 +30,6 @@
 \def\TheAuthor{Wilson J. Schmeggles}
 \def\TheAuthorLNF{Schmeggles, Wilson, J.}
 
-
 \def\TheCopyrightYear{2017}
 \def\TheEdition{First Edition}
 
@@ -35,6 +39,8 @@
 \def\ThePublisher{\ThePublisherName}% Add Ltd, Inc, LLC etc here
 \def\ThePublisherAddrA{1234 Xyzzy Plugh Ln}
 \def\ThePublisherAddrB{North Wyodaka, QM 45678}
+\def\ThePublisherCity{Wyodaka}
+\def\ThePublisherState{QM}
 
 \def\ThePrinter{CreateSpace, An Amazon.com Company}
 
@@ -85,10 +91,16 @@
 %% Computed parameters for cover and jacket design 
 
 % CreateSpace and Ingram, use different paper stock so the spine width must
-% be adjusted to refect that.
-% 
-% for White paper: multiply page count by 0.002252
-\pgfmathsetmacro\SinglePageThicknessPt{0.002252in}% Createspace White
+% be adjusted to refect that. 
+% For example Createspace, White paper: multiply page count by 0.002252
+%
+\pgfmathsetmacro\SinglePageThicknessPt{0.002252in}% Createspace, White B&W Paper
+%\pgfmathsetmacro\SinglePageThicknessPt{0.002143in}% Blurb, Standard and Econony B&W Paper
+%\pgfmathsetmacro\SinglePageThicknessPt{0.002602in}% Blurb, Standard and Economy Color Paper
+%\pgfmathsetmacro\SinglePageThicknessPt{0.002110in}% Ingram, Standard White B&W Paper (50lb)
+%\pgfmathsetmacro\SinglePageThicknessPt{0.002110in}% Ingram, Standard Color Paper (50lb)
+%\pgfmathsetmacro\SinglePageThicknessPt{0.002720in}% Ingram, Premium Color Paper (70lb)
+
 \pgfmathsetmacro\HorBleedPt{0.125in}%
 \pgfmathsetmacro\VerBleedPt{0.125in}%
 \pgfmathsetmacro\FoldVariancePt{0.0625in}%

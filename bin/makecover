@@ -9,6 +9,11 @@
 declare fullScriptName=$_
 declare scriptName=$(basename $0)
 
+# Scripts calls other scripts in the same directory by simple name.
+declare absScriptFile=$(readlink -f "$0")
+declare absScriptPath=$(dirname "$absScriptFile")
+PATH=$absScriptPath:$PATH
+
 declare toDir="cover"
 declare parametersName
 
@@ -219,12 +224,15 @@ function makeCover()
 function scriptUsage()
 {
     echo "Usage: $scriptName"
-    echo "Build a LaTeX cover"
+    echo "Build a LaTeX Print on Demand Paperback PDF cover"
     echo ""
     echo "-t             trial run -- commands are shown but not executed."
     echo "-v             verbose output during command execution."
     echo "-q             quiet output during command execution."
     echo ""
+    echo "The spine width of the cover depends on the TotalPageCount defined"
+    echo "in BookParameters.tex. This can be [1] manually edited, [2] set with the"
+    echo "command `setBookParameter TotalPageCount`"
     exit 1
 }
 

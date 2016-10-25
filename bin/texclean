@@ -138,13 +138,15 @@ function cleanDir()
     run "rm -f \"${bookName}0x.png\""
     delIfExists "idxmake.dvi"
     delIfExists "idxmake.log"
+    delIfExists "texput.log"
+    delIfExists "BookParameters.old"
 }
 
 #------------------------------------------------------------------------
 function scriptUsage()
 {
     echo "Usage: $scriptName [texfilename]"
-    echo "Clean up trash files for a LaTeX .tex file."
+    echo "Clean up intermediate and trash files for a LaTeX .tex file."
     echo ""
     echo "-a             clean for all .tex files in the directory."
     echo "-t             trial run -- commands are shown but not executed."
