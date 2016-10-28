@@ -1,0 +1,128 @@
+%% ----------------------------------------------------------------------------
+%% eBook - Uploadable Cover Art - MASTER LaTeX File
+% -----------------------------------------------------------------------------
+% V0.1 - 11 Sep 2016
+% -----------------------------------------------------------------------------
+% John Fogarty - Web:http://www.jfogarty.org - Mail: johnhenryfogarty@gmail.com
+% -----------------------------------------------------------------------------
+% 
+% This is for building a the cover art for uploading to Kindle Direct
+% Publishing, Ingram, or Apple iBooks.
+%
+% Apple and Kindle now want 1400+ pixels on short side.
+%
+% Ingram EBOOK covers require:
+%   2560 pixels on longest side
+%   Minimum 1600 pixels on shortest side (350 dpi)
+%
+% I use this to build the cover as a PDF, then I run Pinta or Gimp and
+% grab the part of the cover I want and resize it as needed for the 
+% publisher's requirements.
+% -----------------------------------------------------------------------------
+\documentclass[12pt,twoside,openany,svgnames,x11names]{book}
+\input{../BookParameters.tex}
+
+\usepackage{wallpaper}
+\usepackage{changepage}
+\usepackage[explicit,clearempty]{titlesec}
+\usepackage{fancyhdr}
+\usepackage{tikz}
+\usetikzlibrary{shapes,positioning}
+
+%
+% 
+\usepackage{geometry}
+\geometry{
+   paperwidth=12 in, 
+   paperheight=18 in,
+   left=1.0in,
+   right=1.0in, 
+   top=2.0in,
+   bottom=46mm,
+   headheight=\baselineskip,
+   headsep=3.0in,
+   footskip=1.0in,
+}
+
+%% Set the uniform width of the colour box
+%% displaying the page number in footer
+%% to the width of "99"
+\newlength\pagenumwidth
+\settowidth{\pagenumwidth}{99}
+
+%% Concoct some colours of our own
+\definecolor[named]{GreenTea}{HTML}{CAE8A2}
+\definecolor[named]{MilkTea}{HTML}{C5A16F}
+
+\definecolor{orangeX}{RGB}{255,127,0}%
+\colorlet{BannerColor}{blue!22!black}%
+
+%% ----------------------------------------------------------------------------
+%% ----------------------------------------------------------------------------
+\begin{document}
+\frontmatter
+
+%%%%%%%%%%%%%%
+%% Cover page
+%%%%%%%%%%%%%%
+
+%% No header nor footer on the cover
+\thispagestyle{empty}
+
+%% Cover illustration
+%\ThisLLCornerWallPaper{1}{coverArt}
+\CenterWallPaper{1.15}{../images/CoverArt.jpg}
+
+%% Bar across the top
+%\tikz[remember picture,overlay]%
+
+\begin{tikzpicture}[remember picture,overlay]
+  \node[fill=BannerColor,
+    minimum width=\paperwidth,
+    minimum height=6em,
+    anchor=north, 
+  ] at (current page.north){};
+%  \node[
+%    font=\LARGE\bfseries,
+%    text=Cornsilk,
+%    xshift=0mm, yshift=-14mm
+%  ] at (current page.north) {\TheBookSeries};
+\end{tikzpicture}
+
+\vspace*{1\baselineskip}
+
+\scalebox{2}{\bfseries\itshape%
+ \color{LightGoldenrod!50!Gold}
+ \fontsize{24.88pt}{36pt}
+ \selectfont{\TheMainTitle}\par}
+
+\vspace*{3\baselineskip}
+
+\scalebox{2}{\bfseries\itshape\
+  \color{LightGoldenrod!50!Gold}
+  \fontsize{14.4pt}{18pt}\selectfont
+  {\TheSubTitle\par}}
+
+\vspace*{3.5\baselineskip}
+
+\scalebox{2}{\LARGE\color{LightGoldenrod}
+  \hspace*{2mm}{\TheAuthor}\par
+}
+
+%% Bar across the bottom
+\begin{tikzpicture}[remember picture,overlay]
+  \node[fill={BannerColor},
+    minimum width=\paperwidth,
+    minimum height=6em,
+    xshift=0mm, yshift=0mm,
+    anchor={south}]
+    at (current page.south) {};
+%  \node[
+%    anchor={south},
+%    font=\LARGE\bfseries,
+%    text=Cornsilk,
+%    xshift=0mm, yshift=8.5mm
+%  ] at (current page.south) {\ThePublisherName};
+\end{tikzpicture}
+
+\end{document}

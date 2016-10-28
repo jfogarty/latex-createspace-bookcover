@@ -79,11 +79,23 @@ the page count, but you will need to edit it if your book title, subtitle,
 author name, or publisher names are significantly longer than those
 provided in the example.
  
+ 
+## eBook Cover Art
+
+A special .tex file `FrontCoverEbook.tex` is included to help you create the
+large format art required for eBook covers. Apple iBooks and Amazon Kindle now
+require images with 1400+ pixels on short side. Ingram Spark requires a minimum
+of 1600 pixels on shortest side and 2560 pixels on the longer side.
+
+This project typesets a 12" x 18" PDF file. You can then use Gimp, Pinta, or
+other image capture programs to grab a suitable image for upload.
+
+
 ## License
 
-This code is MIT Licensed and under the Free License 1.0.0. You are free to
-choose the one that works for you. if you want to grab parts for use in your
-own project then please remove my name and hack away.
+This project is MIT Licensed and under the Free Public License 1.0.0. You are
+free to choose the one that works for you. if you want to grab parts for use
+in your own project then please remove my name and hack away.
 
 ## Installing 
 
