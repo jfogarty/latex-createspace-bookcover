@@ -10,6 +10,15 @@ are easily changed.
 
 ![This would be a Paperback Cover Image, but I can't find the file, Sorry.][cover]
 
+Note that if you are writing a non-fiction book, you might consider doing so
+in LaTeX. [My Non-Fiction Book/eBook template](https://github.com/jfogarty/latex-nonfiction-ebook-template) on [Github](https://github.com/) is a bit more complex
+to use, but will do all the heavy lifting of generating page runners, tables
+of content (both summary and detailed), bibliography, multi-leveled index,
+and lists of terms and abbreviations. It will regenerate your book for
+print-on-demand (POD) printers, as ePub files, as a distributable PDF
+file, as an HTML web site, and as a raw ASCII file (an annoying requirement
+for obtaining catalog in publication data).
+
 ## Structure
 
 `BookParameters.tex` is a LaTeX file containing defines about your book. 
@@ -33,34 +42,37 @@ You will need to adjust image sizes and spacing for your own text and
 image shapes by editing the .tex file. Reasonable familiarity with LaTeX
 is required.
 
-### Building ###
+### Building Your Cover PDF File ###
 
-You can run the provided script:
+Run the provided script:
 
 ```bash
     ./bin/makecover
 ```
 
-which executes exactly these commands:
-
-```bash
-mkdir -p cover/logs
-cd cover
-pdflatex -synctex=1 -interaction=nonstopmode  FrontCover.tex 1> ./logs/1_pdflatex.log
-pdflatex -synctex=1 -interaction=nonstopmode  BackCover.tex 1> ./logs/2_pdflatex.log
-pdflatex -synctex=1 -interaction=nonstopmode  SpineCover.tex 1> ./logs/3_pdflatex.log
-pdflatex -synctex=1 -interaction=nonstopmode  FrontCover.tex 1> ./logs/4_pdflatex.log
-pdflatex -synctex=1 -interaction=nonstopmode  BackCover.tex 1> ./logs/5_pdflatex.log
-pdflatex -synctex=1 -interaction=nonstopmode  SpineCover.tex 1> ./logs/6_pdflatex.log
-pdflatex -synctex=1 -interaction=nonstopmode  Cover.tex 1> ./logs/7_pdflatex.log
-../bin/texclean -a 1> ./logs/8_texclean.log
-cp Cover.pdf ..
+This should produce output that looks like:
 ```
+$ makecover
+    - Book Format 6in x 9in (315 pages)
+    - ISBN13: 978-4-4444444-4-6, Price: $9.95 [50995]
+    - GhostScript generation of ISBN Barcode image
+    - Pass 1 - Generating Front Cover
+    - Pass 1 - Generating Back Cover
+    - Pass 1 - Generating Spine for Cover
+    - Pass 2 - Generating Front Cover
+    - Pass 2 - Generating Back Cover
+    - Pass 2 - Generating Spine for Cover
+    - Assembling Final Cover
+    - Removing intermediate files
+    - Done.
+```
+If any step fails (usually due to missing or incorrectly configured tools)
+you should examine the log files generated into the `cover/logs` directory.
 
 ## Page Count and Spine
 
-The *TotalPageCount* parameter in `BookParameters.tex` controls the
-thickness of your book's spine. The page count times the *SinglePageThicknessPt*
+The **TotalPageCount* parameter in `BookParameters.tex` controls the
+thickness of your book's spine. The page count times the **SinglePageThicknessPt**
 determines the thickness. This is currently set to the thickness of standard
 white paper used by CreateSpace, but you may need to change it to match the bond
 used by your print on demand publisher.
@@ -78,7 +90,32 @@ You will need the `./bin` directory in your path.
 the page count, but you will need to edit it if your book title, subtitle,
 author name, or publisher names are significantly longer than those
 provided in the example.
+
+## ISBN Numbers
+
+You should have ISBN numbers for each verson of your book. 
+In the United States these must be either purchased directly from
+[Bowker](http://www.bowker.com/) at [MyIdentifiers.com](https://www.myidentifiers.com/get-your-isbn-now). I recommend buying a block of 10 ISBNs for $250. Alternatively, you can
+get a 'free' ISBN from [CreateSpace](https://www.createspace.com) if you are
+publishing your print version ony with them.
+There are issues with doing this, that may make it difficult
+to use other printers, but you may decide to save the bucks (not recommended).
+
+Once you have your ISBNs, modify the `BookParameters.tex` fields, **PrintISBN**,
+**PrintISBNShort**, **EbookISBN**, and **EbookISBNShort**. 13 digit ISBN numbers
+can be converted to 10 digit and vice versa using [this tool](http://pcn.loc.gov/isbncnvt.html). Make sure you select **Hyphenate ISBNs**. You must have the
+dashes in the correct places in your barcodes.
  
+## Price and ISBN Barcode
+
+The **PrintPrice** parameter is the price that will be added to the barcode 
+placed in the lower right corner of the back cover. Undefine (put a % in
+front of) the parameter to generate a barcode without a price. Note that
+most retailers will not accept books without the price extension.
+
+This barcode is generated with ghostscript using Terry Burton's most excellent
+[PostScript based barcode generator](https://github.com/bwipp/postscriptbarcode).
+Use $99.99 if your price exceeds $100 (good luck selling that puppy).
  
 ## eBook Cover Art
 
@@ -87,8 +124,10 @@ large format art required for eBook covers. Apple iBooks and Amazon Kindle now
 require images with 1400+ pixels on short side. Ingram Spark requires a minimum
 of 1600 pixels on shortest side and 2560 pixels on the longer side.
 
-This project typesets a 12" x 18" PDF file. You can then use Gimp, Pinta, or
-other image capture programs to grab a suitable image for upload.
+This project typesets a 12" x 18" PDF file. You can then use [Gimp](https://www.gimp.org/), [Pinta](https://pinta-project.com/pintaproject/pinta/), or
+other image capture programs to grab a suitable image for upload. I often just
+use the [Okular PDF Viewer](https://okular.kde.org/) on Linux to select and
+save an image.
 
 
 ## License
@@ -102,7 +141,11 @@ in your own project then please remove my name and hack away.
 Just copy the contents to your directories and use as is. You will need a
 complete LaTeX environment, which includes `pdflatex`. I recommend TexLive 2016.
 
-I also use `TeXstudio` for interactive editing of the LaTeX files.
+If your cover includes a price in the barcode, then you must also have the
+`gs` (GhostScript) command available from the command line.
+
+I also use `TeXstudio` for interactive editing of the LaTeX files. I strongly
+recommend installing it.
 
 
 ## `texclean` Utility

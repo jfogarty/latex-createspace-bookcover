@@ -21,6 +21,10 @@ declare trialRun=0
 declare verbose=0
 declare quiet=0
 declare logindex=1
+declare showInfo=0
+declare isbn13
+declare price
+declare priceCode
 declare rv
 
 #------------------------------------------------------------------------
@@ -162,7 +166,7 @@ function evalrv()
 function getBookParam()
 {
     local pname=$1
-    local cmd='perl -0ne '"'"'print "$1\n" if /\\'"$pname"'{(.*)}/'
+    local cmd='perl -0ne '"'"'print "$2\n" if /[^%]\s*\\(def|pgfmathsetmacro)\\'"$pname"'{(.*)}/'
     local cmd+="' < ../$parametersName.tex"
     evalrv "$cmd"
 }
@@ -173,7 +177,17 @@ function showStats()
     getBookParam "PaperWidthPt";   local width="$rv"
     getBookParam "PaperHeightPt";  local height="$rv"
 
-    printf '%s Book Format %s x %s (%s pages)\n' '-' $width $height $pages       
+    printf '%s Book Format %s x %s (%s pages)\n' '-' $width $height $pages
+    
+    getBookParam "PrintISBN";   isbn13="$rv"
+    getBookParam "PrintPrice";  price="$rv"
+    if [[ -z "$price" ]]; then
+        printf '%s ISBN13: %s, No Price supplied.\n' '-' "$isbn13"
+    else
+        priceCode=0000"${price//.}"
+        priceCode=5"${priceCode:(-4)}"
+        printf '%s ISBN13: %s, Price: $%s [%s]\n' '-' "$isbn13" "$price" "$priceCode"
+    fi
 }
 
 #------------------------------------------------------------------------
@@ -205,6 +219,25 @@ function logrun()
     let logindex+=1
 }
 
+#------------------------------------------------------------------------
+# Make an ISBN barcode with price
+function makeBarcode()
+{
+    local isbnFile="ISBN.ps"
+    local isbnImage="ISBN.png"
+    local gsParms="-dSAFER -dBATCH -dNOPAUSE -sDEVICE=pnggray -dTextAlphaBits=4 -r600 -g1480x800"
+    if [[ -n "$price" ]]; then
+        run "cat ../bin/external/barcode.ps > $isbnFile"
+        run "echo '15 10 moveto ($isbn13 $priceCode) (includetext) /isbn /uk.co.terryburton.bwipp findresource exec' >> $isbnFile"
+        run "echo '0 -17 rmoveto (ISBN) show' >> $isbnFile"
+        run "echo 'showpage' >> $isbnFile"
+        logrun "GhostScript generation of ISBN Barcode image" "gs" "$gsParms -sOutputFile=$isbnImage $isbnFile" 1
+    fi
+}
+ 
+ 
+#------------------------------------------------------------------------
+# Make the book cover using LaTeX
 function makeCover()
 {
     local pdfparms="-synctex=1 -interaction=nonstopmode "
@@ -218,21 +251,23 @@ function makeCover()
     logrun "Assembling Final Cover"               $tex "$pdfparms Cover.tex" 1
     logrun "Removing intermediate files"          "../bin/texclean" "-a" 1
     run "cp Cover.pdf .."
- }
+}
 
 #------------------------------------------------------------------------
 function scriptUsage()
 {
-    echo "Usage: $scriptName"
+    echo "Usage: $scriptName [options]"
     echo "Build a LaTeX Print on Demand Paperback PDF cover"
     echo ""
-    echo "-t             trial run -- commands are shown but not executed."
-    echo "-v             verbose output during command execution."
-    echo "-q             quiet output during command execution."
+    echo "Options:"
+    echo "  -t   trial run -- commands are shown but not executed."
+    echo "  -v   verbose output during command execution."
+    echo "  -q   quiet output during command execution."
+    echo "  -i   show information about book cover."
     echo ""
     echo "The spine width of the cover depends on the TotalPageCount defined"
-    echo "in BookParameters.tex. This can be [1] manually edited, [2] set with the"
-    echo "command `setBookParameter TotalPageCount`"
+    echo "in BookParameters.tex. This can be [1] manually edited, or"
+    echo "  [2] set with the command `setBookParameter TotalPageCount`"
     exit 1
 }
 
@@ -243,20 +278,28 @@ function main()
     parametersName="BookParameters"
     requireFile "BookParameters"  "$parametersName.tex"
     requireFile "Cover" "cover/Cover.tex"
-    prepareDir
-    showStats
-    makeCover
-    qecho "- Done."
+    if [[ $showInfo -eq 1 ]]; then
+        run cd "cover"
+        showStats
+    else 
+        prepareDir
+        showStats
+        makeBarcode
+        makeCover
+        qecho "- Done."
+    fi    
     exit 0
 }
 
 OPTIND=1 # Reset in case getopts has been used previously in the shell.
-while getopts "h?vqt" opt; do
+while getopts "h?vqti" opt; do
     case "$opt" in
         h|\?)
             scriptUsage
             exit 0
             ;;
+        i)  showInfo=1
+            ;;            
         v)  verbose=1
             ;;
         q)  quiet=1

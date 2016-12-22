@@ -63,16 +63,21 @@
   \begin{adjustwidth}{10mm}{9cm}
     \begin{center}
       \vspace*{9mm}
-      \textbf{\textit{\ThePublisherLineA}} \par
+      \textbf{\textit{Slappey}} \par
       \vspace*{1mm}
       \includegraphics[width=15mm]{../images/PressLogo.png}\par%
-      \vspace*{-1mm}\hspace*{-1mm}\textbf{\textit{\ThePublisherLineB}}\par
+      \vspace*{-1mm}\hspace*{-1mm}\textbf{\textit{Press}}\par
     \end{center}
   \end{adjustwidth}
- 
+
+ \ifthenelse{\isnamedefined{PrintPrice}}{%
+     \vspace*{-30mm}\hspace*{55mm}%
+     \includegraphics[width=70mm]{ISBN.png}%
+ }{
   \ifthenelse{\isnamedefined{EANisbn}}{
     \vspace*{-26mm}\hspace*{75mm}\EANisbn
-  }{}
+    }{}
+  }
 }
 
 \end{document}
