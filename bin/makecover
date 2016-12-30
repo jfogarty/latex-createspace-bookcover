@@ -22,9 +22,14 @@ declare verbose=0
 declare quiet=0
 declare logindex=1
 declare showInfo=0
+declare hardcover=0
 declare isbn13
 declare price
 declare priceCode
+declare hisbn13
+declare hprice
+declare hpriceCode
+declare coverType=""
 declare rv
 
 #------------------------------------------------------------------------
@@ -142,6 +147,16 @@ function copyIfExists()
 }
 
 #------------------------------------------------------------------------
+# Delete a file if it exists
+function delIfExists()
+{
+    local theFile=$1
+    if [[ -e "$theFile" ]]; then
+        run rm "$theFile"
+    fi
+}
+
+#------------------------------------------------------------------------
 # Set up the working directory
 function prepareDir()
 {
@@ -171,6 +186,10 @@ function getBookParam()
     evalrv "$cmd"
 }
 
+#------------------------------------------------------------------------
+# This shows the book statistics AND obtains the parameters for
+# generating the ISBN barcode. Yes, its a kludge, but I'm feeling lazy
+# today. Feel free to fix it.
 function showStats()
 {
     getBookParam "TotalPageCount"; local pages="$rv"
@@ -179,14 +198,39 @@ function showStats()
 
     printf '%s Book Format %s x %s (%s pages)\n' '-' $width $height $pages
     
-    getBookParam "PrintISBN";   isbn13="$rv"
-    getBookParam "PrintPrice";  price="$rv"
-    if [[ -z "$price" ]]; then
-        printf '%s ISBN13: %s, No Price supplied.\n' '-' "$isbn13"
+    getBookParam "PrintISBN";       isbn13="$rv"
+    if [[ -z "$isbn13" ]]; then
+        printf '%s ISBN not supplied. No EAN barcode will be generated.\n' '-'
+        hardcover=0
     else
-        priceCode=0000"${price//.}"
-        priceCode=5"${priceCode:(-4)}"
-        printf '%s ISBN13: %s, Price: $%s [%s]\n' '-' "$isbn13" "$price" "$priceCode"
+        getBookParam "PrintPrice";      price="$rv"
+        getBookParam "HardcoverISBN";   hisbn13="$rv"
+        pb=""    
+        if [[ -n "$hisbn13" ]]; then
+            pb="Paperback "
+            getBookParam "HardcoverPrice";  hprice="$rv"
+        else
+            if [[ $hardcover != 0 ]]; then 
+              printf '%s Hardcover ISBN not supplied. Reverting to PrintISBN.\n' '*'
+              hardcover=0
+            fi
+        fi
+        if [[ -z "$price" ]]; then
+            printf '%s %sISBN13: %s, No price supplied.\n' '-' "$pb" "$isbn13"
+        else
+            priceCode=0000"${price//.}"
+            priceCode=5"${priceCode:(-4)}"
+            printf '%s %sISBN13: %s, Price: $%s [%s]\n' '-' "$pb" "$isbn13" "$price" "$priceCode"
+        fi
+        if [[ -n "$hisbn13" ]]; then
+            if [[ -z "$hprice" ]]; then
+                printf '%s Hardcover ISBN13: %s, No hardcover price supplied.\n' '-' "$hisbn13"
+            else
+                hpriceCode=0000"${hprice//.}"
+                hpriceCode=5"${hpriceCode:(-4)}"
+                printf '%s Hardcover ISBN13: %s, Price: $%s [%s]\n' '-' "$hisbn13" "$hprice" "$hpriceCode"
+            fi
+        fi
     fi
 }
 
@@ -211,7 +255,7 @@ function logrun()
       local fullcmd="$cmd $parms $fromstream> $logfile"
     fi
     qecho "- $msg"
-    if [[ ignoreError -eq 0 ]]; then
+    if [[ $ignoreError -eq 0 ]]; then
         run "$fullcmd" 
     else
         runIgnore "$fullcmd" 
@@ -225,16 +269,30 @@ function makeBarcode()
 {
     local isbnFile="ISBN.ps"
     local isbnImage="ISBN.png"
-    local gsParms="-dSAFER -dBATCH -dNOPAUSE -sDEVICE=pnggray -dTextAlphaBits=4 -r600 -g1480x800"
-    if [[ -n "$price" ]]; then
+    local gsParms="-dSAFER -dBATCH -dNOPAUSE -sDEVICE=pnggray -dTextAlphaBits=4 -r600"
+    local imageParm="-g1480x800"
+    if [[ -n "$isbn13" ]]; then
+        coverType=" (paperback)"
+        if [[ $hardcover -ne 0 ]]; then
+            coverType=" (hardcover)"
+            isbn13="$hisbn13"
+            priceCode="$hpriceCode"
+        fi 
         run "cat ../bin/external/barcode.ps > $isbnFile"
-        run "echo '15 10 moveto ($isbn13 $priceCode) (includetext) /isbn /uk.co.terryburton.bwipp findresource exec' >> $isbnFile"
+        if [[ -z "$priceCode" ]]; then
+            imageParm="-g1070x800"            
+            run "echo '15 10 moveto ($isbn13) (includetext) /isbn /uk.co.terryburton.bwipp findresource exec' >> $isbnFile"
+        else
+            run "echo '15 10 moveto ($isbn13 $priceCode) (includetext) /isbn /uk.co.terryburton.bwipp findresource exec' >> $isbnFile"
+        fi
         run "echo '0 -17 rmoveto (ISBN) show' >> $isbnFile"
         run "echo 'showpage' >> $isbnFile"
-        logrun "GhostScript generation of ISBN Barcode image" "gs" "$gsParms -sOutputFile=$isbnImage $isbnFile" 1
+        logrun "GhostScript generation of ISBN Barcode image" "gs" "$gsParms $imageParm -sOutputFile=$isbnImage $isbnFile" 1
+    else
+        delIfExists "$isbnFile"
+        delIfExists "$isbnImage"
     fi
 }
- 
  
 #------------------------------------------------------------------------
 # Make the book cover using LaTeX
@@ -242,14 +300,14 @@ function makeCover()
 {
     local pdfparms="-synctex=1 -interaction=nonstopmode "
     local tex="pdflatex"
-    logrun "Pass 1 - Generating Front Cover"      $tex "$pdfparms FrontCover.tex" 1
-    logrun "Pass 1 - Generating Back Cover"       $tex "$pdfparms BackCover.tex" 1
-    logrun "Pass 1 - Generating Spine for Cover"  $tex "$pdfparms SpineCover.tex" 1
-    logrun "Pass 2 - Generating Front Cover"      $tex "$pdfparms FrontCover.tex" 1
-    logrun "Pass 2 - Generating Back Cover"       $tex "$pdfparms BackCover.tex" 1
-    logrun "Pass 2 - Generating Spine for Cover"  $tex "$pdfparms SpineCover.tex" 1
-    logrun "Assembling Final Cover"               $tex "$pdfparms Cover.tex" 1
-    logrun "Removing intermediate files"          "../bin/texclean" "-a" 1
+    logrun "Pass 1 - Generating Front Cover"           $tex "$pdfparms FrontCover.tex" 1
+    logrun "Pass 1 - Generating Back Cover$coverType"  $tex "$pdfparms BackCover.tex" 1
+    logrun "Pass 1 - Generating Spine for Cover"       $tex "$pdfparms SpineCover.tex" 1
+    logrun "Pass 2 - Generating Front Cover"           $tex "$pdfparms FrontCover.tex" 1
+    logrun "Pass 2 - Generating Back Cover$coverType"  $tex "$pdfparms BackCover.tex" 1
+    logrun "Pass 2 - Generating Spine for Cover"       $tex "$pdfparms SpineCover.tex" 1
+    logrun "Assembling Final Cover$coverType"          $tex "$pdfparms Cover.tex" 1
+    logrun "Removing intermediate files"               "../bin/texclean" "-a" 1
     run "cp Cover.pdf .."
 }
 
@@ -260,14 +318,16 @@ function scriptUsage()
     echo "Build a LaTeX Print on Demand Paperback PDF cover"
     echo ""
     echo "Options:"
+    echo "  -g   Use hardCover ISBN and optional price for barcode."
     echo "  -t   trial run -- commands are shown but not executed."
     echo "  -v   verbose output during command execution."
     echo "  -q   quiet output during command execution."
     echo "  -i   show information about book cover."
     echo ""
     echo "The spine width of the cover depends on the TotalPageCount defined"
-    echo "in BookParameters.tex. This can be [1] manually edited, or"
-    echo "  [2] set with the command `setBookParameter TotalPageCount`"
+    echo "in BookParameters.tex. There are two ways to set this:"
+    echo "  [1] manually edit BookParameters.tex, or"
+    echo "  [2] set with the command 'setBookParameter TotalPageCount'"
     exit 1
 }
 
@@ -292,12 +352,14 @@ function main()
 }
 
 OPTIND=1 # Reset in case getopts has been used previously in the shell.
-while getopts "h?vqti" opt; do
+while getopts "h?gvqti" opt; do
     case "$opt" in
         h|\?)
             scriptUsage
             exit 0
             ;;
+        g)  hardcover=1
+            ;;            
         i)  showInfo=1
             ;;            
         v)  verbose=1

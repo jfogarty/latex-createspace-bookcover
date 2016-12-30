@@ -60,15 +60,19 @@
 % Dashes MUST be placed in the correct postions in the ISBNs.
 \def\PrintISBN{978-4-4444444-4-6}% 
 \def\PrintISBNShort{4-4444444-4-9}%
+%\def\HardcoverISBN{978-4-4444444-4-6}%
+%\def\HardcoverISBNShort{4-4444444-4-9}%  
 \def\EbookISBN{978-5-5555555-5-7}%
 \def\EbookISBNShort{5-5555555-5-9}%
 
 %% ----------------------------------------------------------------------------
-% If a price is defined then the makecover script will create a barcode with
-% the GhostScript barcode.ps barcode generator: see Terry Burton's PostScript
-% based barcode generator. See: https://github.com/bwipp/postscriptbarcode.
+% The ISBN barcode is created with the GhostScript barcode.ps generator:
+% see Terry Burton's PostScript % based barcode generator, at: 
+%       https://github.com/bwipp/postscriptbarcode.
 % Use 99.99 if your price exceeds $100 (good luck selling that puppy).
+% Comment out these entries if you don't want a price in the barcode.
 \def\PrintPrice{9.95}% Price in dollars and cents for barcode.
+%\def\HardcoverPrice{19.95}% Price in dollars and cents for barcode.
 
 %% ----------------------------------------------------------------------------
 % NOTE that P-CIP (Publisher's Catalog in Publication) data block must be

@@ -6,9 +6,6 @@
 \usepackage{pagecolor}
 \usepackage{changepage}
 
-% ----- Uncomment to add ISBN barcode to back cover 
-\usepackage[ISBN=\PrintISBN,SC4]{ean13isbn}
-
 \geometry{
   paperwidth=\CoverWidth in,%
   paperheight=\CoverHeight in,%
@@ -70,15 +67,25 @@
     \end{center}
   \end{adjustwidth}
 
- \ifthenelse{\isnamedefined{PrintPrice}}{%
-     \vspace*{-30mm}\hspace*{55mm}%
-     \includegraphics[width=70mm]{ISBN.png}%
- }{
-  \ifthenelse{\isnamedefined{EANisbn}}{
-    \vspace*{-26mm}\hspace*{75mm}\EANisbn
-    }{}
-  }
-}
+  \ifthenelse{\isnamedefined{PrintISBN}}{
+    \IfFileExists{ISBN.png}{%
+      \ifthenelse{\isnamedefined{PrintPrice}}{%
+        \vspace*{-32mm}\hspace*{55mm}%
+        \includegraphics[width=70mm]{ISBN.png}%
+      }{%
+        \ifthenelse{\isnamedefined{PrintISBN}}{
+          \vspace*{-32mm}\hspace*{65mm}%
+          \includegraphics[width=55mm]{ISBN.png}%    
+        }{}%
+      }
+    }{%
+      \ifthenelse{\isnamedefined{PrintISBN}}{%
+         \vspace*{-32mm}\hspace*{55mm}%
+         *MISSING ISBN.png BARCODE*
+      }{}%    
+    }%
+  }{}%
+}%
 
 \end{document}
 

@@ -139,13 +139,35 @@ in your own project then please remove my name and hack away.
 ## Installing 
 
 Just copy the contents to your directories and use as is. You will need a
-complete LaTeX environment, which includes `pdflatex`. I recommend TexLive 2016.
+complete LaTeX environment, which includes `pdflatex`. 
 
-If your cover includes a price in the barcode, then you must also have the
-`gs` (GhostScript) command available from the command line.
+I **strongly** recommend installing [TeX Live 2016](https://www.tug.org/texlive/doc/texlive-en/texlive-en.html).
+Others who have attempted to use TexLive 2013 have seen problems with the pgf package.
 
-I also use `TeXstudio` for interactive editing of the LaTeX files. I strongly
-recommend installing it.
+You can check that you have a proper TeXLive install with **tex --version**:
+
+```
+  $ which tex # This is a linux command to discover the install path.
+      /usr/local/texlive/2016/bin/x86_64-linux/tex
+  $ tex --version
+      TeX 3.14159265 (TeX Live 2016)
+      kpathsea version 6.2.2
+      ...
+
+```
+
+If your cover includes an ISBN barcode, then you must also have the `gs`
+(GhostScript) command available from the command line. Check the install with:
+
+```
+    $ which gs
+    /usr/bin/gs
+    $ gs --version
+    9.10
+```
+
+I use [TeXstudio](http://www.texstudio.org/) for interactive editing of the LaTeX files. 
+I also strongly recommend installing it.
 
 
 ## `texclean` Utility
