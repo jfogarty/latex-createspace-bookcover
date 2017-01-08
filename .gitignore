@@ -1,0 +1,53 @@
+#########################
+#### GENERAL or ROOT ####
+#########################
+
+*.log
+*.old
+*.tmp
+rebuild.bash
+
+# Transifex
+.transifexrc
+
+# Maven
+target/
+
+# Eclipse
+.classpath
+.project
+.settings/
+*.iml
+*.pyc
+.DS_Store
+*.orig
+pre-commit-changes.txt
+
+# Emacs temp files
+~*
+*~
+
+#SVN
+.svn
+*.svn-base
+*#
+
+.idea
+.AppleDouble/
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
+
+#vim files
+.*.sw?
+.*~
+
+#Johns local notes
+*.jf.txt

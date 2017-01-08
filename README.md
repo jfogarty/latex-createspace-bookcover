@@ -71,17 +71,17 @@ you should examine the log files generated into the `cover/logs` directory.
 
 ## Page Count and Spine
 
-The **TotalPageCount* parameter in `BookParameters.tex` controls the
+The **TotalPageCount** parameter in `BookParameters.tex` controls the
 thickness of your book's spine. The page count times the **SinglePageThicknessPt**
 determines the thickness. This is currently set to the thickness of standard
 white paper used by CreateSpace, but you may need to change it to match the bond
 used by your print on demand publisher.
 
-Once you have built a PDF for your book, you can set the page by:
+Once you have built a PDF for your book, you can set the page count by:
 
-- [1] editing `BookParameters.tex` directly
-- [2] or running `./bin/setBookParameter TotalPageCount nnn`
-- [3] or running `setBookTotalPageCount [logfile]` against
+- [1] editing `BookParameters.tex` directly **or**
+- [2] running `./bin/setBookParameter TotalPageCount nnn` **or**
+- [3] running `setBookTotalPageCount [logfile]` against
 the final pdflatex log file created when you built your pdf.
 This extracts the page count from the log and modifies `BookParameters.tex`.
 You will need the `./bin` directory in your path.
@@ -97,7 +97,7 @@ You should have ISBN numbers for each verson of your book.
 In the United States these must be either purchased directly from
 [Bowker](http://www.bowker.com/) at [MyIdentifiers.com](https://www.myidentifiers.com/get-your-isbn-now). I recommend buying a block of 10 ISBNs for $250. Alternatively, you can
 get a 'free' ISBN from [CreateSpace](https://www.createspace.com) if you are
-publishing your print version ony with them.
+publishing your print version only with them.
 There are issues with doing this, that may make it difficult
 to use other printers, but you may decide to save the bucks (not recommended).
 
@@ -127,7 +127,7 @@ of 1600 pixels on shortest side and 2560 pixels on the longer side.
 This project typesets a 12" x 18" PDF file. You can then use [Gimp](https://www.gimp.org/), [Pinta](https://pinta-project.com/pintaproject/pinta/), or
 other image capture programs to grab a suitable image for upload. I often just
 use the [Okular PDF Viewer](https://okular.kde.org/) on Linux to select and
-save an image.
+save cover images.
 
 
 ## License
