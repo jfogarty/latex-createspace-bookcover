@@ -168,6 +168,7 @@
 \pgfmathsetmacro\FoldVariance{\FoldVariancePt/ \PtsPerInch}%
  
 %% ----------------------------------------------------------------------------
+\DeclareOldFontCommand{\bf}{\normalfont\bfseries}{\mathbf}
 \renewcommand{\bf}[1]{\textbf{#1}}% Legacy \bf support.
 
 \newcommand{\SetBool}[2]{%
